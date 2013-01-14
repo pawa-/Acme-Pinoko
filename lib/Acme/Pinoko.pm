@@ -100,6 +100,8 @@ sub _parse
     {
         my $encoder = $self->{encoder};
 
+        $$text_ref = $encoder->encode($$text_ref);
+
         for (my $node = $self->{parser}->parse($$text_ref); $node; $node = $node->next)
         {
             next if $node->stat == 2 || $node->stat == 3;
