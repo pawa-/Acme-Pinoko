@@ -9,6 +9,9 @@ requires 'Data::Recursive::Encode';
 requires 'Lingua::JA::Regular::Unicode' => '0.09';
 requires 'Lingua::JA::Halfwidth::Katakana';
 test_requires 'Test::More' => 0.98;
+test_requires 'Test::Base';
+test_requires 'Test::Fatal';
+test_requires 'Test::Requires';
 
 # どっちかがあればOK
 #requires 'Text::MeCab' => '0.20013';
