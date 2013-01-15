@@ -19,6 +19,8 @@ our $KYTEA_POSTAG_NUM  = 0;
 our $KYTEA_PRONTAG_NUM = 1;
 
 my @PARSERS = qw/Text::MeCab Text::KyTea/;
+my %IS_HIRAGANA_INVALID_POS;
+@IS_HIRAGANA_INVALID_POS{qw/助詞 語尾 副詞 動詞 助動詞 形容詞 形状詞 連体詞 接頭詞 接頭辞 代名詞/} = ();
 
 
 sub _options
@@ -190,18 +192,44 @@ sub _to_pinoko
                 # [1]: 合衆国
                 # [2]: の
                 # [3]: 州
-                my @surfaces = grep { length } split(/([0-9０-９]*\p{Han}+|[^\p{Han}]+)/, $surf);
+                my @surfaces = grep { length } split(/([0-9０-９]*[\p{Han}ケヶ]+[0-9０-９]*|[^\p{Han}]+)/, $surf);
 
                 my (@kanji_prons, $regexp);
 
                 for my $surface (@surfaces)
                 {
-                    if ($surface =~ /[0-9０-９]*\p{Han}/) { $regexp .= "(.+)";   }
-                    else                                  { $regexp .= $surface; }
+                    if ($surface =~ /[0-9０-９]*[\p{Han}ケヶ]/) { $regexp .= "(.+)"; }
+                    else
+                    {
+                        if ($self->{parser_name} eq 'Text::MeCab')
+                        {
+                            $regexp .= Lingua::JA::Regular::Unicode::katakana2hiragana($surface);
+                        }
+                        else # Text::KyTea
+                        {
+                            if ($surface =~ /(?:ず|づ)/)
+                            {
+                                my $pron = Lingua::JA::Regular::Unicode::katakana2hiragana($surface);
+                                my $du = $pron; $du =~ tr/ず/づ/;
+                                my $zu = $pron; $zu =~ tr/づ/ず/;
+
+                                $regexp .= "(?:$du|$zu)";
+                            }
+                            else
+                            {
+                                if ($surface =~ /[あ-おぁ-ぉア-オァ-ォ]{1}/)
+                                {
+                                    $regexp .= "[" . Lingua::JA::Regular::Unicode::katakana2hiragana($surface) . "|ー]";
+                                }
+                                else { $regexp .= Lingua::JA::Regular::Unicode::katakana2hiragana($surface); }
+                            }
+                        }
+                    }
                 }
 
                 if ($regexp =~ /\(\.\+\)/)
                 {
+                    $regexp =~ tr/\x{005F}\x{3000}\x{3095}/\x{FF3F}\x{FF3F}\x{304B}/; # 「_　ゕ」-> 「＿＿か」
                     @kanji_prons = $prons_ref->[$i] =~ /$regexp/;
                 }
 
@@ -212,8 +240,8 @@ sub _to_pinoko
                         my $pron        = shift @kanji_prons;
                         my $pinoko_pron = $self->pinoko($pron);
 
-                        if ($pron eq $pinoko_pron) { $ret .= $surface; }
-                        else                       { $ret .= $pron;    }
+                        if ( (! defined $pinoko_pron) || $pron eq $pinoko_pron ) { $ret .= $surface; }
+                        else                                                     { $ret .= $pron;    }
                     }
                     else
                     {
@@ -254,15 +282,10 @@ sub _to_pinoko
                 $next_surface = '' unless defined $next_surface;
 
                 if (
-                    $next_pos eq '助詞'
-                 || $next_pos eq '語尾'
-                 || $next_pos eq '副詞'
-                 || $next_pos eq '助動詞'
-                 || $next_pos eq '形容詞'
-                 || $next_pos eq '連体詞'
+                    exists $IS_HIRAGANA_INVALID_POS{$next_pos}
                  || $next_surface eq '？'
                  || $next_surface eq '?'
-                 || ( $next_pos eq '名詞' && $next_surface !~ /^ｗ+$/ )
+                 || ( ($next_pos eq '名詞' || $next_pos eq '記号' || $next_pos eq '補助記号') && $next_surface !~ /^ｗ+$/ )
                 )
                 {
                     $ret .= $pron;
@@ -274,15 +297,8 @@ sub _to_pinoko
                         if ( int( rand(2) ) == 0 ) { $ret .= 'わのよ'; }
                         else                       { $ret .= 'わのね'; }
                     }
-                    elsif ($pron eq 'の')
-                    {
-                        if ($next_pos eq '接頭辞' || $next_pos eq '名詞') { $ret .= 'の';     }
-                        else                                              { $ret .= 'のよさ'; }
-                    }
-                    elsif ($pron eq 'うよ')
-                    {
-                        $ret .= 'うよのさ';
-                    }
+                    elsif ($pron eq 'の')   { $ret .= 'のよさ';   }
+                    elsif ($pron eq 'うよ') { $ret .= 'うよのさ'; }
                     elsif ( $i != 0 && ($pron eq 'よ' || $pron eq 'ね') )
                     {
                         my $prev_surface = $surfaces_ref->[$i - 1];
@@ -313,6 +329,8 @@ sub _to_pinoko
 sub pinoko
 {
     local $_ = $_[1];
+
+    return unless defined $_;
 
     s/奥さん/おくたん/g;
     s/手術/シウツ/g;

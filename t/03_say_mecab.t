@@ -685,9 +685,33 @@ __DATA__
 --- input:    3セット目のあの流れ
 --- expected: 3セット目のあの流え
 
+=== の＋動詞 -> No のよさ
+--- input:    彼のやりすぎ
+--- expected: かえのやいちゅぎ
+
 === の＋副詞 -> No のよさ
 --- input:    自分のそういうとこ
 --- expected: 自分のそういうとこ
+
+=== の＋形状詞 -> No のよさ
+--- input:    もののようで
+--- expected: もののようれ
+
+=== の＋代名詞 -> No のよさ
+--- input:    あれのそれ
+--- expected: あえのそえ
+
+=== の＋接頭詞 -> No のよさ
+--- input:    トロンボーンの主旋律
+--- expected: トヨンボーンのちゅせんいつ
+
+=== の＋接頭詞 -> No のよさ
+--- input:    ただのおでぶちゃん
+--- expected: たらのおれぶちゃん
+
+=== の＋記号 -> No のよさ
+--- input:    Perlの「ハッシュ」
+--- expected: Perlの「ハッチュ」
 
 === 〜だよ -> 〜だのよ
 --- input:    ゴキブリ以下だよ
@@ -752,3 +776,47 @@ __DATA__
 === ｗｗｗｗｗｗｗｗｗｗｗｗ
 --- input:    思ってるよｗｗ
 --- expected: 思ってゆよのさｗｗ
+
+=== 固有名詞
+--- input:    テレビ愛知
+--- expected: テエビ愛知
+
+=== ヶ
+--- input:    一ヶ月
+--- expected: 一ヶ月
+
+=== ヶ
+--- input:    桐ヶ谷
+--- expected: きいヶ谷
+
+=== ケ
+--- input:    桐ケ谷
+--- expected: きいがや
+
+=== ヵ
+--- input:    一ヵ月
+--- expected: 一ヵ月
+
+=== ３
+--- input:    中３
+--- expected: ちゅうちゃん
+
+=== 月
+--- input:    ３月
+--- expected: ちゃんがつ
+
+=== LOW LINE
+--- input:    研_3月
+--- expected: 研_3月
+
+=== FULL WIDTH LOW LINE
+--- input:    研＿3月
+--- expected: 研＿3月
+
+=== 長音化阻止
+--- input:    言い聞かせる
+--- expected: 言い聞かせゆ
+
+=== づ -> じゅ
+--- input:    顔を近づけて
+--- expected: 顔を近じゅけて
