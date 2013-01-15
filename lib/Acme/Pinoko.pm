@@ -100,26 +100,37 @@ sub _parse
     {
         my $encoder = $self->{encoder};
 
-        $$text_ref = $encoder->encode($$text_ref);
-
-        for (my $node = $self->{parser}->parse($$text_ref); $node; $node = $node->next)
+        for my $text ( split(/(\s+)/, $$text_ref) )
         {
-            next if $node->stat == 2 || $node->stat == 3;
-
-            my $surface = $encoder->decode($node->surface);
-            push(@surfaces, $surface);
-
-            my ($pos, $pron) = (split(/,/, $encoder->decode($node->feature), 9))[0,7];
-
-            if ( (! defined $pron) || $pron eq '*' )
+            if ($text =~ /\s/)
             {
-                if ($surface =~ /^\p{InKatakana}+$/) { $pron = Lingua::JA::Regular::Unicode::katakana2hiragana($surface); }
-                else                                 { $pron = 'UNK';                                                     }
+                push(@surfaces, $text);
+                push(@poses, '記号');
+                push(@prons, 'UNK');
+                next;
             }
-            else { $pron = Lingua::JA::Regular::Unicode::katakana2hiragana($pron); }
 
-            push(@poses, $pos);
-            push(@prons, $pron);
+            my $encoded_text = $encoder->encode($text);
+
+            for (my $node = $self->{parser}->parse($encoded_text); $node; $node = $node->next)
+            {
+                next if $node->stat == 2 || $node->stat == 3;
+
+                my $surface = $encoder->decode($node->surface);
+                push(@surfaces, $surface);
+
+                my ($pos, $pron) = (split(/,/, $encoder->decode($node->feature), 9))[0,7];
+
+                if ( (! defined $pron) || $pron eq '*' )
+                {
+                    if ($surface =~ /^\p{InKatakana}+$/) { $pron = Lingua::JA::Regular::Unicode::katakana2hiragana($surface); }
+                    else                                 { $pron = 'UNK';                                                     }
+                }
+                else { $pron = Lingua::JA::Regular::Unicode::katakana2hiragana($pron); }
+
+                push(@poses, $pos);
+                push(@prons, $pron);
+            }
         }
     }
     else # Text::KyTea

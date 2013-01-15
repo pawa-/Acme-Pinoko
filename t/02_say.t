@@ -10,9 +10,11 @@ SKIP: {
 
     my $pinoko = Acme::Pinoko->new;
     is($pinoko->say('ABC'), 'ABC', 'normal text');
-    is($pinoko->say(0),     '0',   'zero text');
     is($pinoko->say(undef), undef, 'undefined text');
     is($pinoko->say(''),    '',    'empty text');
+    is($pinoko->say(0),     '0',   'zero');
+    is($pinoko->say("\n"),  "\n",  '\n');
+    is($pinoko->say("\t"),  "\t",  '\t');
 }
 
 SKIP: {
@@ -21,9 +23,11 @@ SKIP: {
 
     my $pinoko = Acme::Pinoko->new(parser => 'Text::KyTea');
     is($pinoko->say('ABC'), 'ABC', 'normal text');
-    is($pinoko->say(0),     '0',   'zero text');
     is($pinoko->say(undef), undef, 'undefined text');
     is($pinoko->say(''),    '',    'empty text');
+    is($pinoko->say(0),     '0',   'zero');
+    is($pinoko->say("\n"),  "\n",  '\n');
+    is($pinoko->say("\t"),  "\t",  '\t');
 }
 
 done_testing;
