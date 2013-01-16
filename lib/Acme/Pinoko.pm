@@ -335,8 +335,8 @@ sub _to_pinoko
                         }
                         else # ね
                         {
-                            if ($prev_surface eq 'よ') { $ret .= 'のね'; }
-                            else                       { $ret .= 'ね';   }
+                            if ($prev_surface eq 'わ' || $prev_surface eq 'よ') { $ret .= 'のね'; }
+                            else                                                { $ret .= 'ね';   }
                         }
                     }
                     else { $ret .= $pron; }
