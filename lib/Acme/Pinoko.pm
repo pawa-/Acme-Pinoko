@@ -19,9 +19,12 @@ our $KYTEA_POSTAG_NUM  = 0;
 our $KYTEA_PRONTAG_NUM = 1;
 
 my @PARSERS = qw/Text::MeCab Text::KyTea/;
-my %IS_HIRAGANA_INVALID_POS;
-@IS_HIRAGANA_INVALID_POS{qw/助詞 語尾 副詞 動詞 助動詞 形容詞 形状詞 連体詞 接頭詞 接頭辞 代名詞/} = ();
 
+my %HIRAGANA_INVALID_POS;
+@HIRAGANA_INVALID_POS{qw/助詞 語尾 副詞 動詞 助動詞 形容詞 形状詞 連体詞 接頭詞 接頭辞 代名詞/} = ();
+
+my %TERMINATOR_CHAR;
+@TERMINATOR_CHAR{ split(//, "。｡.． 　\n\t…‥") } = ();
 
 sub _options
 {
@@ -281,11 +284,21 @@ sub _to_pinoko
                 my $next_surface = $surfaces_ref->[$i + 1];
                 $next_surface = '' unless defined $next_surface;
 
+                my $next_next_surface = $surfaces_ref->[$i + 2];
+                $next_next_surface = '' unless defined $next_next_surface;
+
                 if (
-                    exists $IS_HIRAGANA_INVALID_POS{$next_pos}
+                    exists $HIRAGANA_INVALID_POS{$next_pos}
                  || $next_surface eq '？'
                  || $next_surface eq '?'
-                 || ( ($next_pos eq '名詞' || $next_pos eq '記号' || $next_pos eq '補助記号') && $next_surface !~ /^ｗ+$/ )
+                 || (
+                        ($next_pos eq '名詞' || $next_pos eq '記号' || $next_pos eq '補助記号')
+                     && ! exists $TERMINATOR_CHAR{$next_surface}
+                     && $next_surface ne '･･'
+                     && ! ($next_surface eq '･'  &&  $next_next_surface eq '･')
+                     && ! ($next_surface eq '・' &&  $next_next_surface eq '・')
+                     && $next_surface !~ /^ｗ+$/
+                    )
                 )
                 {
                     $ret .= $pron;
@@ -297,8 +310,18 @@ sub _to_pinoko
                         if ( int( rand(2) ) == 0 ) { $ret .= 'わのよ'; }
                         else                       { $ret .= 'わのね'; }
                     }
-                    elsif ($pron eq 'の')   { $ret .= 'のよさ';   }
-                    elsif ($pron eq 'うよ') { $ret .= 'うよのさ'; }
+                    elsif ($pron eq 'の')
+                    {
+                        if ( $i != 0 && $poses_ref->[$i - 1] eq '名詞' && $next_surface =~ /\s/ )
+                        {
+                            $ret .= 'の';
+                        }
+                        else { $ret .= 'のよさ'; }
+                    }
+                    elsif ($pron eq 'うよ')
+                    {
+                        $ret .= 'うよのさ';
+                    }
                     elsif ( $i != 0 && ($pron eq 'よ' || $pron eq 'ね') )
                     {
                         my $prev_surface = $surfaces_ref->[$i - 1];
