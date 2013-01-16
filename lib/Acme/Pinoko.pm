@@ -24,7 +24,7 @@ my %HIRAGANA_INVALID_POS;
 @HIRAGANA_INVALID_POS{qw/助詞 語尾 副詞 動詞 助動詞 形容詞 形状詞 連体詞 接頭詞 接頭辞 代名詞/} = ();
 
 my %TERMINATOR_CHAR;
-@TERMINATOR_CHAR{ split(//, "。｡.． 　\n\t…‥") } = ();
+@TERMINATOR_CHAR{ split(//, "。｡.． 　\n\t…‥!！") } = ();
 
 sub _options
 {
