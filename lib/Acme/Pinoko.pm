@@ -415,7 +415,7 @@ my (%config);
 Acme::Pinoko converts standard Japanese text to Pinoko-ish Japanese text.
 
 Pinoko is a Japanese manga character. She speaks with a lisp and
-therefore her spoken Japanese varies slightly from standard Japanese.
+therefore her spoken Japanese is slightly different from standard Japanese.
 
 =head1 METHODS
 

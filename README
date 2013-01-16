@@ -14,7 +14,8 @@ DESCRIPTION
     text.
 
     Pinoko is a Japanese manga character. She speaks with a lisp and
-    therefore her spoken Japanese varies slightly from standard Japanese.
+    therefore her spoken Japanese is slightly different from standard
+    Japanese.
 
 METHODS
   $pinoko = Acme::Pinoko->new(%config)
