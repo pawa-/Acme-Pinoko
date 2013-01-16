@@ -312,7 +312,7 @@ sub _to_pinoko
                     }
                     elsif ($pron eq 'の')
                     {
-                        if ( $i != 0 && $poses_ref->[$i - 1] eq '名詞' && $next_surface =~ /\s/ )
+                        if ( $i != 0 && $poses_ref->[$i - 1] eq '名詞' && ($next_surface eq '' || $next_surface =~ /\s/) )
                         {
                             $ret .= 'の';
                         }

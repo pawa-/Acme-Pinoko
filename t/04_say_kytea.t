@@ -763,6 +763,10 @@ __DATA__
 --- input:    Perlの Perl
 --- expected: Perlの Perl
 
+=== 名詞＋の -> No のよさ
+--- input:    Perlの
+--- expected: Perlの
+
 === の＋終端じゃない記号 -> No のよさ
 --- input:    Perlの「ハッシュ」
 --- expected: Perlの「ハッチュ」
