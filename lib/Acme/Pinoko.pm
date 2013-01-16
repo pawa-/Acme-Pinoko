@@ -12,7 +12,7 @@ use Data::Recursive::Encode ();
 use Lingua::JA::Regular::Unicode ();
 use Lingua::JA::Halfwidth::Katakana;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 # KyTea でデフォルトじゃないモデルを使う場合は変更が必要な場合もある
 our $KYTEA_POSTAG_NUM  = 0;
